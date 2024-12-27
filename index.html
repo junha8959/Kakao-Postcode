@@ -39,25 +39,28 @@
 
       var element_layer = document.getElementById("layer");
       function execDaumPostcode() {
-        new daum.Postcode({
-          oncomplete: function (data) {
-            var jibunAddress = "";
-
-            if (data.jibunAddress == "") {
-              jibunAddress = data.autoJibunAddress;
-            } else if (data.autoJibunAddress == "") {
-              jibunAddress = data.jibunAddress;
-            }
-
-            var postData = {
-              roadAddress: data.roadAddress,
-              jibunAddress: jibunAddress,
-              zonecode: data.zonecode,
-            };
-            window.postMessageToiOS(postData);
-          },
-          width: "100%",
-          height: "100%",
+         new daum.Postcode({
+            oncomplete: function (data) {
+                var jibunAddress = data.jibunAddress || data.autoJibunAddress || "";
+                var roadAddress = data.roadAddress || "";
+    
+                // iOS로 전달
+                if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.callBackHandler) {
+                    var postData = {
+                        roadAddress: roadAddress,
+                        jibunAddress: jibunAddress,
+                        zonecode: data.zonecode,
+                    };
+                    window.webkit.messageHandlers.callBackHandler.postMessage(postData);
+                }
+    
+                // Android로 전달
+                if (window.Android && window.Android.processDATA) {
+                    window.Android.processDATA(roadAddress, jibunAddress);
+                }
+            },
+            width: "100%",
+            height: "100%",
         }).embed(element_layer);
         element_layer.style.display = "block";
         initLayerPosition();
