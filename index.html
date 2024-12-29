@@ -43,20 +43,21 @@
             oncomplete: function (data) {
                 var jibunAddress = data.jibunAddress || data.autoJibunAddress || "";
                 var roadAddress = data.roadAddress || "";
+                var zonecode = data.zonecode; // 우편번호
     
                 // iOS로 전달
                 if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.callBackHandler) {
                     var postData = {
                         roadAddress: roadAddress,
                         jibunAddress: jibunAddress,
-                        zonecode: data.zonecode,
+                        zonecode: zonecode,
                     };
                     window.webkit.messageHandlers.callBackHandler.postMessage(postData);
                 }
     
                 // Android로 전달
                 if (window.Android && window.Android.processDATA) {
-                    window.Android.processDATA(roadAddress, jibunAddress);
+                    window.Android.processDATA(roadAddress, jibunAddress,zonecode);
                 }
             },
             width: "100%",
